@@ -1,38 +1,76 @@
-from dao.abstract_dao import AbstractDao
+from typing import List
+
+from config.my_session import session
 from domain.template import Template
-from sql_executor import SqlExecutor
 from table.template_table import TemplateTable
 
 
-class TemplateDao(AbstractDao):
-
-    _domain = Template
-    _ormapping = {
-        "id":         TemplateTable.id,
-        "doctype_id": TemplateTable.doc_type_id,
-        "status":     TemplateTable.status,
-        "tmp_data":   TemplateTable.config
-    }
+class TemplateDao:
 
     @classmethod
-    def get_by_id(cls, tmp_id):
-        executor = SqlExecutor(cls())
-        q = executor.query()\
-            .filter(TemplateTable.id == tmp_id)
-        template = executor.one(q)
+    def query(cls, tmp_id):
+        q = session.query(
+            TemplateTable.id,
+            TemplateTable.doc_type_id,
+            TemplateTable.status,
+            TemplateTable.config
+        ).filter(TemplateTable.id == tmp_id)
+        result = q.one()
+
+        template = Template(
+            tmp_id=result.id,
+            doctype_id=result.doc_type_id,
+            status=result.status,
+            tmp_data=result.config
+        )
         return template
 
     @classmethod
+    def list_all(cls):
+        q = session.query(
+            TemplateTable.id,
+            TemplateTable.doc_type_id,
+            TemplateTable.status,
+            TemplateTable.config
+        )
+        result_list = q.all()
+
+        tmp_list: List[Template] = []
+        for result in result_list:
+            tmp = Template(
+                tmp_id=result.id,
+                doctype_id=result.doc_type_id,
+                status=result.status,
+                tmp_data=result.config
+            )
+            tmp_list.append(tmp)
+        return tmp_list
+
+    @classmethod
     def update(cls, template: Template):
-        executor = SqlExecutor(cls())
-        executor.update(template)
+        q = session.query(
+            TemplateTable.id,
+            TemplateTable.doc_type_id,
+            TemplateTable.status,
+            TemplateTable.config
+        ).filter(TemplateTable.id == template.id)
+
+        row = dict(
+            id=template.id,
+            doc_type_id=template._doctype_id,
+            status=template._status,
+            config=template._tmp_data
+        )
+        q.update(row)
+        session.flush()
 
     @classmethod
     def create(cls, new_tmp: Template):
-        raise Exception("can't create Template without MarkTask !")
-
-    @classmethod
-    def insert_raws(cls, template: Template):
-        row = SqlExecutor(cls()).row_with_single_table(template)
-        return [row]
-
+        insert_row = TemplateTable(
+            id=new_tmp.id,
+            doc_type_id=new_tmp._doctype_id,
+            status=new_tmp._status,
+            config=new_tmp._tmp_data
+        )
+        session.add(insert_row)
+        session.flush()

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Boolean, String
+from sqlalchemy import Column, Integer, Boolean, JSON
 from config.my_session import Base
 
 
@@ -8,3 +8,4 @@ class MarkTaskTable(Base):
     id = Column(Integer(), name="id", primary_key=True)
     is_deleted = Column(Boolean(), nullable=False, default=False)
     group_id = Column(Integer, name="group_id", comment="组id")
+    mark_task_result = Column(JSON(), default={})

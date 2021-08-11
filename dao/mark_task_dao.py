@@ -1,52 +1,77 @@
 from typing import List
 
-from dao.abstract_dao import AbstractDao
+from config.my_session import session
 from dao.template_dao import TemplateDao
 from domain.mark_task import MarkTask
-from sql_executor import SqlExecutor
 from table.mark_task_table import MarkTaskTable
 
 
-class MarkTaskDao(AbstractDao):
-
-    _domain = MarkTask
-    _ormapping = {
-        "id":       MarkTaskTable.id,
-        "group_id": MarkTaskTable.group_id,
-    }
+class MarkTaskDao:
 
     @classmethod
-    def get_by_id(cls, task_id):
-        executor = SqlExecutor(cls())
-        q = executor.query().filter(MarkTaskTable.id == task_id)
-        task: MarkTask = executor.one(q)
+    def query(cls, task_id):
+        q = session.query(
+            MarkTaskTable.id,
+            MarkTaskTable.group_id,
+            MarkTaskTable.mark_task_result
+        ).filter(MarkTaskTable.id == task_id)
+        result = q.one()
 
-        tmp = TemplateDao.get_by_id(task.id)
-        task.d_i(tmp)
+        template = TemplateDao.query(result.id)
+        task = MarkTask(
+            task_id=result.id,
+            group_id=result.group_id,
+            mark_data=result.mark_task_result,
+            template=template
+        )
         return task
 
     @classmethod
-    def list(cls):
-        executor = SqlExecutor(cls())
-        q = executor.query()
-        task_list: List[MarkTask] = executor.list_all(q)
+    def list_all(cls):
+        q = session.query(
+            MarkTaskTable.id,
+            MarkTaskTable.group_id,
+            MarkTaskTable.mark_task_result
+        )
+        result_list = q.all()
 
-        for task in task_list:
-            tmp = TemplateDao.get_by_id(task.id)
-            task.d_i(tmp)
-
+        task_list: List[MarkTask] = []
+        for result in result_list:
+            template = TemplateDao.query(result.id)
+            task = MarkTask(
+                task_id=result.id,
+                group_id=result.group_id,
+                mark_data=result.mark_task_result,
+                template=template
+            )
+            task_list.append(task)
         return task_list
 
     @classmethod
-    def create(cls, new_task: MarkTask):
-        row_list = cls.insert_raws(new_task)
-        template_rows = TemplateDao.insert_raws(new_task._template)
-        row_list.extend(template_rows)
+    def update(cls, task: MarkTask):
+        q = session.query(
+            MarkTaskTable.id,
+            MarkTaskTable.group_id,
+            MarkTaskTable.mark_task_result,
+            MarkTaskTable.is_deleted
+        ).filter(MarkTaskTable.id == task.id)
 
-        executor = SqlExecutor(cls())
-        executor.insert(row_list)
+        row = dict(
+            id=task.id,
+            group_id=task._group_id,
+            mark_task_result=task._mark_data
+        )
+        q.update(row)
+        session.flush()
 
     @classmethod
-    def insert_raws(cls, task: MarkTask):
-        row = SqlExecutor(cls()).row_with_single_table(task)
-        return [row]
+    def create(cls, new_task: MarkTask):
+        TemplateDao.create(new_task.template)
+        insert_row = MarkTaskTable(
+            id=new_task.id,
+            group_id=new_task._group_id,
+            mark_task_result=new_task._mark_data,
+            is_deleted=False
+        )
+        session.add(insert_row)
+        session.flush()

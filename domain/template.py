@@ -1,10 +1,10 @@
 class Template:
 
-    def __init__(self):
-        self._id = 0
-        self._doctype_id = 0
-        self._status = -1
-        self._tmp_data = {}
+    def __init__(self, tmp_id, doctype_id, status, tmp_data):
+        self._id = tmp_id
+        self._doctype_id = doctype_id
+        self._status = status
+        self._tmp_data = tmp_data
 
     @property
     def id(self):
@@ -12,12 +12,13 @@ class Template:
 
     def flash(self, json_data):
         self._tmp_data = json_data
+        if json_data:
+            self._status = 2
+        else:
+            self._status = 0
 
-    def is_useful(self):
+    def useful(self):
         return self._status > 0
-
-    def trained(self, value=2):
-        self._status = value
 
     def print(self):
         print("|%-6d" % self._id, end="")
