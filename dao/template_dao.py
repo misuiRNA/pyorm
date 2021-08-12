@@ -7,14 +7,16 @@ from table.template_table import TemplateTable
 
 class TemplateDao:
 
+    _query_entity = [
+        TemplateTable.id,
+        TemplateTable.doc_type_id,
+        TemplateTable.status,
+        TemplateTable.config
+    ]
+
     @classmethod
     def query(cls, tmp_id):
-        q = session.query(
-            TemplateTable.id,
-            TemplateTable.doc_type_id,
-            TemplateTable.status,
-            TemplateTable.config
-        ).filter(TemplateTable.id == tmp_id)
+        q = session.query(*cls._query_entity).filter(TemplateTable.id == tmp_id)
         result = q.one()
 
         template = Template(
@@ -27,12 +29,7 @@ class TemplateDao:
 
     @classmethod
     def list_all(cls):
-        q = session.query(
-            TemplateTable.id,
-            TemplateTable.doc_type_id,
-            TemplateTable.status,
-            TemplateTable.config
-        )
+        q = session.query(*cls._query_entity)
         result_list = q.all()
 
         tmp_list: List[Template] = []
@@ -48,12 +45,7 @@ class TemplateDao:
 
     @classmethod
     def update(cls, template: Template):
-        q = session.query(
-            TemplateTable.id,
-            TemplateTable.doc_type_id,
-            TemplateTable.status,
-            TemplateTable.config
-        ).filter(TemplateTable.id == template.id)
+        q = session.query(*cls._query_entity).filter(TemplateTable.id == template.id)
 
         row = dict(
             id=template.id,

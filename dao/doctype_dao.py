@@ -10,17 +10,21 @@ from table.mark_task_group_table import MarkTaskGroupTable
 
 class DoctypeDao:
 
+    _query_entity = [
+        DocTypeTable.id,
+        DocTypeTable.name,
+        DocTypeTable.desc,
+        DocTypeTable.create_time,
+        DocTypeTable.last_update_time,
+        MarkTaskGroupTable.doc_type_id,
+        func.count("*").label("group_count")
+
+    ]
+
     @classmethod
     def list_all(cls, start, limit_num, search):
-        q = session.query(
-            DocTypeTable.id,
-            DocTypeTable.name,
-            DocTypeTable.desc,
-            DocTypeTable.create_time,
-            DocTypeTable.last_update_time,
-            MarkTaskGroupTable.doc_type_id,
-            func.count("*").label("group_count")
-        ).join(MarkTaskGroupTable, MarkTaskGroupTable.doc_type_id == DocTypeTable.id)\
+        q = session.query(*cls._query_entity)\
+         .join(MarkTaskGroupTable, MarkTaskGroupTable.doc_type_id == DocTypeTable.id)\
          .group_by(MarkTaskGroupTable.doc_type_id) \
          .filter(DocTypeTable.name.like(f"%{search}%")) \
          .order_by(DocTypeTable.create_time.desc()) \
@@ -43,15 +47,8 @@ class DoctypeDao:
 
     @classmethod
     def total_count(cls):
-        q = session.query(
-            DocTypeTable.id,
-            DocTypeTable.name,
-            DocTypeTable.desc,
-            DocTypeTable.create_time,
-            DocTypeTable.last_update_time,
-            MarkTaskGroupTable.doc_type_id,
-            func.count("*").label("group_count")
-        ).join(MarkTaskGroupTable, MarkTaskGroupTable.doc_type_id == DocTypeTable.id)\
+        q = session.query(*cls._query_entity)\
+         .join(MarkTaskGroupTable, MarkTaskGroupTable.doc_type_id == DocTypeTable.id)\
          .group_by(MarkTaskGroupTable.doc_type_id)
         count = q.count()
         return count

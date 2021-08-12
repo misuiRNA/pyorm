@@ -18,7 +18,7 @@ def one_diff(dao, _id):
         def real_func():
             entity = dao.query(_id)
             entity.print()
-            print("\n\n")
+            print("\n")
             function()
             entity = dao.query(_id)
             entity.print()

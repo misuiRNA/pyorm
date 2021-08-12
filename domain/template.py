@@ -25,3 +25,4 @@ class Template:
         print("|%-11d" % self._doctype_id, end="")
         print("|%-7d" % self._status, end="")
         print(f"|{self._tmp_data}", end="")
+        print("")

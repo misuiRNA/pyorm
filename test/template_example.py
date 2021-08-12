@@ -4,7 +4,7 @@ from test.title_printer.printer import print_title, one_diff
 from test.title_printer.template_title import TemplateTitle
 
 
-tmp_id = 239
+tmp_id = 275
 
 
 @print_title(TemplateTitle)
@@ -19,6 +19,13 @@ def do_test():
     session.commit()
 
 
+def _print_all():
+    tmp_list = TemplateDao.list_all()
+    for tmp in tmp_list:
+        tmp.print()
+
+
 if __name__ == "__main__":
     do_test()
+    _print_all()
 

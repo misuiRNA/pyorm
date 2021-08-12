@@ -8,13 +8,16 @@ from table.mark_task_table import MarkTaskTable
 
 class MarkTaskDao:
 
+    _query_entity = [
+        MarkTaskTable.id,
+        MarkTaskTable.group_id,
+        MarkTaskTable.mark_task_result
+
+    ]
+
     @classmethod
     def query(cls, task_id):
-        q = session.query(
-            MarkTaskTable.id,
-            MarkTaskTable.group_id,
-            MarkTaskTable.mark_task_result
-        ).filter(MarkTaskTable.id == task_id)
+        q = session.query(*cls._query_entity).filter(MarkTaskTable.id == task_id)
         result = q.one()
 
         template = TemplateDao.query(result.id)
@@ -28,11 +31,7 @@ class MarkTaskDao:
 
     @classmethod
     def list_all(cls):
-        q = session.query(
-            MarkTaskTable.id,
-            MarkTaskTable.group_id,
-            MarkTaskTable.mark_task_result
-        )
+        q = session.query(*cls._query_entity).filter(~MarkTaskTable.is_deleted)
         result_list = q.all()
 
         task_list: List[MarkTask] = []
@@ -49,12 +48,7 @@ class MarkTaskDao:
 
     @classmethod
     def update(cls, task: MarkTask):
-        q = session.query(
-            MarkTaskTable.id,
-            MarkTaskTable.group_id,
-            MarkTaskTable.mark_task_result,
-            MarkTaskTable.is_deleted
-        ).filter(MarkTaskTable.id == task.id)
+        q = session.query(*cls._query_entity).filter(MarkTaskTable.id == task.id)
 
         row = dict(
             id=task.id,
