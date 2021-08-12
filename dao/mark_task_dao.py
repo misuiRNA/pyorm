@@ -1,6 +1,5 @@
 from typing import List
 
-from config.my_session import session
 from dao.template_dao import TemplateDao
 from domain.mark_task import MarkTask
 from table.mark_task_table import MarkTaskTable
@@ -15,12 +14,14 @@ class MarkTaskDao:
 
     ]
 
-    @classmethod
-    def query(cls, task_id):
-        q = session.query(*cls._query_entity).filter(MarkTaskTable.id == task_id)
+    def __init__(self, db_session):
+        self._session = db_session
+
+    def query(self, task_id):
+        q = self._session.query(*self._query_entity).filter(MarkTaskTable.id == task_id)
         result = q.one()
 
-        template = TemplateDao.query(result.id)
+        template = TemplateDao(self._session).query(result.id)
         task = MarkTask(
             task_id=result.id,
             group_id=result.group_id,
@@ -29,14 +30,13 @@ class MarkTaskDao:
         )
         return task
 
-    @classmethod
-    def list_all(cls):
-        q = session.query(*cls._query_entity).filter(~MarkTaskTable.is_deleted)
+    def list_all(self):
+        q = self._session.query(*self._query_entity).filter(~MarkTaskTable.is_deleted)
         result_list = q.all()
 
         task_list: List[MarkTask] = []
         for result in result_list:
-            template = TemplateDao.query(result.id)
+            template = TemplateDao(self._session).query(result.id)
             task = MarkTask(
                 task_id=result.id,
                 group_id=result.group_id,
@@ -46,9 +46,8 @@ class MarkTaskDao:
             task_list.append(task)
         return task_list
 
-    @classmethod
-    def update(cls, task: MarkTask):
-        q = session.query(*cls._query_entity).filter(MarkTaskTable.id == task.id)
+    def update(self, task: MarkTask):
+        q = self._session.query(*self._query_entity).filter(MarkTaskTable.id == task.id)
 
         row = dict(
             id=task.id,
@@ -56,16 +55,15 @@ class MarkTaskDao:
             mark_task_result=task._mark_data
         )
         q.update(row)
-        session.flush()
+        self._session.flush()
 
-    @classmethod
-    def create(cls, new_task: MarkTask):
-        TemplateDao.create(new_task.template)
+    def create(self, new_task: MarkTask):
+        TemplateDao(self._session).create(new_task.template)
         insert_row = MarkTaskTable(
             id=new_task.id,
             group_id=new_task._group_id,
             mark_task_result=new_task._mark_data,
             is_deleted=False
         )
-        session.add(insert_row)
-        session.flush()
+        self._session.add(insert_row)
+        self._session.flush()

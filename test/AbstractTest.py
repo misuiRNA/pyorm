@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from config.my_session import Base
 
 
+# TODO should mock 'Base' instead of import
 class AbstractTest(unittest.TestCase):
 
     _engine = create_engine("sqlite:///:memory:")

@@ -2,7 +2,6 @@ from typing import List
 
 from sqlalchemy import func
 
-from config.my_session import session
 from domain.doctype import Doctype
 from table.doctype_table import DocTypeTable
 from table.mark_task_group_table import MarkTaskGroupTable
@@ -14,20 +13,19 @@ class DoctypeDao:
         DocTypeTable.id,
         DocTypeTable.name,
         DocTypeTable.desc,
-        DocTypeTable.create_time,
-        DocTypeTable.last_update_time,
         MarkTaskGroupTable.doc_type_id,
         func.count("*").label("group_count")
 
     ]
 
-    @classmethod
-    def list_all(cls, start, limit_num, search):
-        q = session.query(*cls._query_entity)\
+    def __init__(self, db_session):
+        self._session = db_session
+
+    def list_all(self, start, limit_num, search):
+        q = self._session.query(*self._query_entity)\
          .join(MarkTaskGroupTable, MarkTaskGroupTable.doc_type_id == DocTypeTable.id)\
          .group_by(MarkTaskGroupTable.doc_type_id) \
          .filter(DocTypeTable.name.like(f"%{search}%")) \
-         .order_by(DocTypeTable.create_time.desc()) \
          .offset(start)\
          .limit(limit_num)
         result_list = q.all()
@@ -39,15 +37,12 @@ class DoctypeDao:
                 doctype_name=result.name,
                 desc=result.desc,
                 group_count=result.group_count,
-                create_time=result.create_time,
-                last_update_time=result.last_update_time
             )
             doctype_list.append(doctype)
         return doctype_list
 
-    @classmethod
-    def total_count(cls):
-        q = session.query(*cls._query_entity)\
+    def total_count(self):
+        q = self._session.query(*self._query_entity)\
          .join(MarkTaskGroupTable, MarkTaskGroupTable.doc_type_id == DocTypeTable.id)\
          .group_by(MarkTaskGroupTable.doc_type_id)
         count = q.count()
