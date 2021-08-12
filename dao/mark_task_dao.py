@@ -11,7 +11,6 @@ class MarkTaskDao:
         MarkTaskTable.id,
         MarkTaskTable.group_id,
         MarkTaskTable.mark_task_result
-
     ]
 
     def __init__(self, db_session):

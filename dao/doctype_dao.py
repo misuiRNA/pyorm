@@ -15,7 +15,6 @@ class DoctypeDao:
         DocTypeTable.desc,
         MarkTaskGroupTable.doc_type_id,
         func.count("*").label("group_count")
-
     ]
 
     def __init__(self, db_session):
