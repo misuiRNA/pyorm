@@ -1,6 +1,5 @@
 from typing import List
 
-from config.my_session import session
 from domain.template import Template
 from table.template_table import TemplateTable
 
@@ -14,9 +13,11 @@ class TemplateDao:
         TemplateTable.config
     ]
 
-    @classmethod
-    def query(cls, tmp_id):
-        q = session.query(*cls._query_entity).filter(TemplateTable.id == tmp_id)
+    def __init__(self, db_session):
+        self._session = db_session
+
+    def query(self, tmp_id):
+        q = self._session.query(*self._query_entity).filter(TemplateTable.id == tmp_id)
         result = q.one()
 
         template = Template(
@@ -27,9 +28,8 @@ class TemplateDao:
         )
         return template
 
-    @classmethod
-    def list_all(cls):
-        q = session.query(*cls._query_entity)
+    def list_all(self):
+        q = self._session.query(*self._query_entity).filter(~TemplateTable.is_deleted)
         result_list = q.all()
 
         tmp_list: List[Template] = []
@@ -43,9 +43,8 @@ class TemplateDao:
             tmp_list.append(tmp)
         return tmp_list
 
-    @classmethod
-    def update(cls, template: Template):
-        q = session.query(*cls._query_entity).filter(TemplateTable.id == template.id)
+    def update(self, template: Template):
+        q = self._session.query(*self._query_entity).filter(TemplateTable.id == template.id)
 
         row = dict(
             id=template.id,
@@ -54,15 +53,14 @@ class TemplateDao:
             config=template._tmp_data
         )
         q.update(row)
-        session.flush()
+        self._session.flush()
 
-    @classmethod
-    def create(cls, new_tmp: Template):
+    def create(self, new_tmp: Template):
         insert_row = TemplateTable(
             id=new_tmp.id,
             doc_type_id=new_tmp._doctype_id,
             status=new_tmp._status,
             config=new_tmp._tmp_data
         )
-        session.add(insert_row)
-        session.flush()
+        self._session.add(insert_row)
+        self._session.flush()
