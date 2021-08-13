@@ -1,15 +1,16 @@
 from dao.doctype_dao import DoctypeDao
 from table.doctype_table import DocTypeTable
 from table.mark_task_group_table import MarkTaskGroupTable
-from test.AbstractTest import AbstractTest
+from test.abstract_test import AbstractTest
 
 
 class DoctypeDaoTest(AbstractTest):
 
     def setUp(self):
         super(DoctypeDaoTest, self).setUp()
+        self._dao = DoctypeDao(self._session)
 
-        self.init_data = [
+        self.mock_data = [
             DocTypeTable(id=1, is_deleted=False, name="doc_1", desc="Diu Diu Diu"),
             MarkTaskGroupTable(is_deleted=False, name="group_11", doc_type_id=1),
             MarkTaskGroupTable(is_deleted=False, name="group_12", doc_type_id=1),
@@ -27,15 +28,15 @@ class DoctypeDaoTest(AbstractTest):
             MarkTaskGroupTable(is_deleted=False, name="group_35", doc_type_id=3),
             MarkTaskGroupTable(is_deleted=False, name="group_36", doc_type_id=3),
         ]
-        self._session.add_all(self.init_data)
+        self._session.add_all(self.mock_data)
         self._session.commit()
 
     def test_list_doctype_should_success(self):
-        doctype_list = DoctypeDao(self._session).list_all(0, 10, "")
+        doctype_list = self._dao.list_all(0, 10, "")
         self.assertEqual(3, len(doctype_list))
 
     def test_count_doctype_should_success(self):
-        count = DoctypeDao(self._session).total_count()
+        count = self._dao.total_count()
         self.assertEqual(3, count)
 
 
