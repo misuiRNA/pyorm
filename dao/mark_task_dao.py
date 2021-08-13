@@ -1,5 +1,7 @@
 from typing import List
 
+from sqlalchemy.orm import Session
+
 from dao.template_dao import TemplateDao
 from domain.mark_task import MarkTask
 from table.mark_task_table import MarkTaskTable
@@ -14,7 +16,7 @@ class MarkTaskDao:
     ]
 
     def __init__(self, db_session):
-        self._session = db_session
+        self._session: Session = db_session
 
     def query(self, task_id):
         q = self._session.query(*self._query_entity).filter(MarkTaskTable.id == task_id)

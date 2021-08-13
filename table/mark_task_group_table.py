@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, Boolean, String
-from config.my_session import Base
+
+from base.base_table import Base
 
 
 class MarkTaskGroupTable(Base):

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, JSON, Boolean
 
-from config.my_session import Base
+from base.base_table import Base
 
 
 class TemplateTable(Base):

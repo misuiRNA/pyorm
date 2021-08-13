@@ -1,6 +1,7 @@
 from typing import List
 
 from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 from domain.doctype import Doctype
 from table.doctype_table import DocTypeTable
@@ -18,7 +19,7 @@ class DoctypeDao:
     ]
 
     def __init__(self, db_session):
-        self._session = db_session
+        self._session: Session = db_session
 
     def list_all(self, start, limit_num, search):
         q = self._session.query(*self._query_entity)\

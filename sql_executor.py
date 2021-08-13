@@ -1,4 +1,4 @@
-from config.my_session import session
+from base.data_source import session
 from sqlalchemy.orm import Query
 
 from dao.abstract_dao import AbstractDao

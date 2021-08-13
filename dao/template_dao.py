@@ -1,5 +1,7 @@
 from typing import List
 
+from sqlalchemy.orm import Session
+
 from domain.template import Template
 from table.template_table import TemplateTable
 
@@ -14,7 +16,7 @@ class TemplateDao:
     ]
 
     def __init__(self, db_session):
-        self._session = db_session
+        self._session: Session = db_session
 
     def query(self, tmp_id):
         q = self._session.query(*self._query_entity).filter(TemplateTable.id == tmp_id)
