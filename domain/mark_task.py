@@ -3,8 +3,8 @@ from domain.template import Template
 
 class MarkTask:
 
-    def __init__(self, task_id, group_id, mark_data, template):
-        self._id = task_id
+    def __init__(self, id, group_id, mark_data, template=None):
+        self._id = id
         self._group_id = group_id
         self._mark_data = mark_data
         self._tmp: Template = template

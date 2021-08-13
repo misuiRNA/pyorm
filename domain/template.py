@@ -1,7 +1,7 @@
 class Template:
 
-    def __init__(self, tmp_id, doctype_id, status, tmp_data):
-        self._id = tmp_id
+    def __init__(self, id, doctype_id, status, tmp_data):
+        self._id = id
         self._doctype_id = doctype_id
         self._status = status
         self._tmp_data = tmp_data

@@ -45,7 +45,7 @@ class TemplateDaoTest(AbstractTest):
         tmp_list = self._dao.list_all()
         self.assertEqual(expected_len, len(tmp_list))
 
-        new_tmp = Template(tmp_id=20, doctype_id=15, status=3, tmp_data={"data": "new"})
+        new_tmp = Template(id=20, doctype_id=15, status=3, tmp_data={"data": "new"})
         self._dao.create(new_tmp)
         self._session.commit()
         expected_len = expected_len + 1

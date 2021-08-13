@@ -52,8 +52,8 @@ class MarkTaskDaoTest(AbstractTest):
         task_list = self._dao.list_all()
         self.assertEqual(init_len, len(task_list))
 
-        new_tmp = Template(tmp_id=-1, doctype_id=15, status=3, tmp_data={"data": "new"})
-        new_task = MarkTask(task_id=-1, group_id=5, mark_data={}, template=new_tmp)
+        new_tmp = Template(id=-1, doctype_id=15, status=3, tmp_data={"data": "new"})
+        new_task = MarkTask(id=-1, group_id=5, mark_data={}, template=new_tmp)
         self._dao.create(new_task)
         self._session.commit()
         init_len = init_len + 1
