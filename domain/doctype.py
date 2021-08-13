@@ -1,8 +1,8 @@
 class Doctype:
 
-    def __init__(self, doctype_id, doctype_name, desc, group_count):
+    def __init__(self, id, doctype_id, name, desc, group_count):
         self._doctype_id = doctype_id
-        self._doctype_name = doctype_name
+        self._doctype_name = name
         self._desc = desc
         self._group_count = group_count
 

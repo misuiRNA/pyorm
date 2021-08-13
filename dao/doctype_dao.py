@@ -3,26 +3,27 @@ from typing import List
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from base.ormapper import ORMapper
 from domain.doctype import Doctype
 from table.doctype_table import DocTypeTable
 from table.mark_task_group_table import MarkTaskGroupTable
 
 
 class DoctypeDao:
-
-    _query_entity = [
-        DocTypeTable.id,
-        DocTypeTable.name,
-        DocTypeTable.desc,
-        MarkTaskGroupTable.doc_type_id,
-        func.count("*").label("group_count")
-    ]
+    _mapping = dict(
+        id=DocTypeTable.id,
+        name=DocTypeTable.name,
+        desc=DocTypeTable.desc,
+        doctype_id=MarkTaskGroupTable.doc_type_id,
+        group_count=func.count("*").label("group_count")
+    )
+    _orm = ORMapper(Doctype, _mapping)
 
     def __init__(self, db_session):
         self._session: Session = db_session
 
     def list_all(self, start, limit_num, search):
-        q = self._session.query(*self._query_entity)\
+        q = self._session.query(*self._orm.query_entity())\
          .join(MarkTaskGroupTable, MarkTaskGroupTable.doc_type_id == DocTypeTable.id)\
          .group_by(MarkTaskGroupTable.doc_type_id) \
          .filter(DocTypeTable.name.like(f"%{search}%")) \
@@ -32,17 +33,12 @@ class DoctypeDao:
 
         doctype_list: List[Doctype] = []
         for result in result_list:
-            doctype = Doctype(
-                doctype_id=result.doc_type_id,
-                doctype_name=result.name,
-                desc=result.desc,
-                group_count=result.group_count,
-            )
+            doctype = self._orm.parse(result)
             doctype_list.append(doctype)
         return doctype_list
 
     def total_count(self):
-        q = self._session.query(*self._query_entity)\
+        q = self._session.query(*self._orm.query_entity())\
          .join(MarkTaskGroupTable, MarkTaskGroupTable.doc_type_id == DocTypeTable.id)\
          .group_by(MarkTaskGroupTable.doc_type_id)
         count = q.count()
